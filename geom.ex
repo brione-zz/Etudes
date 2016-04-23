@@ -6,13 +6,17 @@ defmodule Geom do
   """
 
   @doc """
-  Computes the area of the rectangle whose width and height are specified.
-
-  Both input parameters default to 1.
+  Computes the area of the geometric entity specified as the first parameter.
 
   Returns the computed area. 
   """
-  def area(width \\ 1, height \\ 1) do
+  def area(:rectangle, width, height) do
     width * height
+  end
+  def area(:triangle, base, height) do
+    ( base * height ) / 2.0
+  end
+  def area(:ellipse, a, b) do
+    :math.pi * a * b
   end
 end
