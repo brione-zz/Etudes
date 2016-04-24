@@ -10,16 +10,16 @@ defmodule Geom do
 
   Returns the computed area. 
   """
-  def area({:rectangle, width, height}) when width >= 0 and height >= 0 do
-    width * height
-  end
-  def area({:triangle, base, height}) when base >= 0 and height >= 0 do
-    ( base * height ) / 2.0
-  end
-  def area({:circle, radius}) when radius >= 0 do
-    :math.pi * radius * radius
-  end
-  def area({:ellipse, a, b}) when a >= 0 and b >= 0 do
-    :math.pi * a * b
+  def area(tuple) do
+    case tuple do
+      {:rectangle, width, height } when width >= 0 and height >= 0 ->
+        width * height
+      {:triangle, base, height} when base >= 0 and height >= 0 ->
+        (base * height)/2.0
+      {:circle, radius} when radius >= 0 ->
+        :math.pi * radius * radius
+      {:ellipse, a, b} when a >= 0 and b >= 0 ->
+        :math.pi * a * b
+    end
   end
 end
