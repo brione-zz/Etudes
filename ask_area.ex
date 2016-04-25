@@ -23,7 +23,12 @@ defmodule(AskArea) do
 
   def get_number(prompt) do
     input = String.strip(IO.gets("Enter #{ prompt } > "), ?\n)
-    :erlang.binary_to_integer(input)
+    cond do
+      Regex.match?(~r/\d+.\d+(e[-+]?\d+)?/, input) -> # float
+        :erlang.binary_to_float(input)
+      true-> #integer
+        :erlang.binary_to_integer(input)
+    end
   end
 
   def get_dimensions(p1, p2) do
