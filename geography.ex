@@ -9,7 +9,8 @@ defmodule(Geography) do
 
   def make_geo_list(res, result) do
     case line = IO.read(res, :line) do
-      :eof -> result
+      :eof ->
+        result
       _ ->
         splits = String.split(line, ",")
         case length(splits) do
@@ -30,6 +31,33 @@ defmodule(Geography) do
         end
 
     end
+  end
+
+  def total_population(countries, language) do
+    case find_language(countries, language) do
+      {:ok, country} ->
+        sum_population(country.cities, 0)
+      {:error, _ } ->
+        IO.puts("Language #{language} not found")
+    end
+  end
+
+  def find_language(countries, language) do
+    case theCountry = Enum.find(countries, :not_found,
+        fn(country) -> country.language == language end) do
+      :not_found -> {:error, :not_found }
+      _ -> {:ok, theCountry }
+    end
+  end
+
+  def sum_population([], total) do
+    total
+  end
+
+  def sum_population([city | rest], total) do
+    # IO.inspect city
+    { population, _ } = Integer.parse(city.population)
+    sum_population(rest, total + population)
   end
 
 end
