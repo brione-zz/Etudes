@@ -21,16 +21,22 @@ defmodule(Geography) do
                     language: String.strip(language) } | result])
           4 ->
             [country | rest] = result
-            [ name, pop, lat, long ] = splits
+            [ name, pop, lat, long ] = translate_city_data(splits)
             newCountry = %{country | cities: 
-                [ %City{ name: String.strip(name), 
-                      population: String.strip(pop),
-                      latitude: String.strip(lat), 
-                      longitude: String.strip(long) } | country.cities]}
+                [ %City{ name: name, population: pop, latitude: lat, 
+                      longitude: long } | country.cities]}
             make_geo_list(res, [newCountry | rest])
         end
 
     end
+  end
+
+  defp translate_city_data(raw_splits) do
+    [ name, pop_s, lat_s, long_s ] = raw_splits
+    { pop, _ } = Integer.parse(pop_s)
+    { lat, _ } = Integer.parse(lat_s)
+    { long, _ } = Integer.parse(long_s)
+    [ String.strip(name), pop, lat, long ]
   end
 
   def total_population(countries, language) do
@@ -56,8 +62,7 @@ defmodule(Geography) do
 
   def sum_population([city | rest], total) do
     # IO.inspect city
-    { population, _ } = Integer.parse(city.population)
-    sum_population(rest, total + population)
+    sum_population(rest, total + city.population)
   end
 
 end
