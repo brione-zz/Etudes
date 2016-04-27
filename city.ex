@@ -12,3 +12,12 @@ defimpl Valid, for: City do
     p > 0 && lat <= 90 && lat >= -90 && long >= -180 && long <= 180
   end
 end
+
+defimpl Inspect, for: City do
+  import Inspect.Algebra
+
+  def inspect(%City{name: n, population: p, latitude: lat, longitude: long }, 
+      _opts) do
+    "#{n} (#{p}) lat: #{lat}, long: #{long}"
+  end
+end
