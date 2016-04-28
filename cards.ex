@@ -16,10 +16,8 @@ defmodule(Cards) do
   end
 
   defp shuffle(deck, shuffled) do
-    index = :random.uniform(length(deck)) - 1
-    next_shuffled = [ Enum.at(deck, index) | shuffled ]
-    new_deck = List.delete_at(deck, index)
-    shuffle(new_deck, next_shuffled) 
+    { leading, [ h | t ] } = Enum.split(deck, :random.uniform(length(deck))-1)
+    shuffle(leading ++ t, [h | shuffled]) 
   end
 
   def deal_bridge_hands() do
