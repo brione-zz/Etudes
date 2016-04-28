@@ -34,4 +34,15 @@ defmodule(Stats) do
     end
   end
 
+  def mean(list) do
+    List.foldl(list, 0, &(&1 + &2))/length(list)
+  end
+
+  def stdv(list) do
+    n = length(list)
+    {sum, sum_of_squares} = List.foldl(list, {0, 0}, 
+        fn(x, {s, ss}) -> { x + s, x * x + ss } end)
+    :math.sqrt((n * sum_of_squares - sum * sum)/(n * (n - 1)))
+  end
+
 end
