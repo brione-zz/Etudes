@@ -1,11 +1,21 @@
 defmodule(Stats) do
 
-  def minimum([h | t]) do
-    minimum(t, h)
+  def minimum(list) do
+    try do
+      [h | t] = list
+      minimum(t, h)
+    rescue
+      e -> e
+    end
   end
 
-  def maximum([h | t]) do
-    maximum(t, h)
+  def maximum(list) do
+    try do
+      [h | t] = list
+      maximum(t, h)
+    rescue
+      e -> e
+    end
   end
 
   def range(list) do
@@ -35,14 +45,22 @@ defmodule(Stats) do
   end
 
   def mean(list) do
-    List.foldl(list, 0, &(&1 + &2))/length(list)
+    try do
+      List.foldl(list, 0, &(&1 + &2))/length(list)
+    rescue
+      e -> e
+    end
   end
 
   def stdv(list) do
-    n = length(list)
-    {sum, sum_of_squares} = List.foldl(list, {0, 0}, 
-        fn(x, {s, ss}) -> { x + s, x * x + ss } end)
-    :math.sqrt((n * sum_of_squares - sum * sum)/(n * (n - 1)))
+    try do
+      n = length(list)
+      {sum, sum_of_squares} = List.foldl(list, {0, 0}, 
+          fn(x, {s, ss}) -> { x + s, x * x + ss } end)
+      :math.sqrt((n * sum_of_squares - sum * sum)/(n * (n - 1)))
+    rescue
+      e -> e
+    end
   end
 
 end
