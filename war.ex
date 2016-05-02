@@ -81,7 +81,7 @@ defmodule(War) do
         left = num - length(cards)
         if left > 0 and length(discards) > 0 do
           #IO.puts("#{ inspect self() } shuffling")
-          new_hand = Cards.shuffle(new_hand ++ discards)
+          new_hand = Cards.shuffle(discards)
           discards = []
           { more, new_hand } = Cards.deal(new_hand, left)
           cards = cards ++ more
