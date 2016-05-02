@@ -1,17 +1,8 @@
 defmodule(Cards) do
 
   def make_deck(type \\ :full) do
-    ranks = if type == :full do
-      [:a, :k, :q, :j, :"10", :"9", :"8", :"7", :"6", 
-          :"5", :"4", :"3", :"2"]
-    else
-      [:a, :k, :q, :j]
-    end
-    suits = if type == :full do
-      [:hearts, :spades, :diamonds, :clubs]
-    else
-      [:hearts, :spades, :diamonds, :clubs]
-    end
+    ranks = Card.ranks(type) 
+    suits = Card.suits(type)
     for r <- ranks, s <- suits, do: %Card{ rank: r, suit: s } 
   end
 
