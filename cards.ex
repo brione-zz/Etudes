@@ -1,9 +1,18 @@
 defmodule(Cards) do
 
-  def make_deck() do
-    ranks = ["K", "Q", "J", "10", "9", "8", "7", "6", "5", "4", "3", "2", "A"]
-    suits = ["Hearts", "Spades", "Diamonds", "Clubs"]
-    for r <- ranks, s <- suits, do: { r, s } 
+  def make_deck(type \\ :full) do
+    ranks = if type == :full do
+      [:a, :k, :q, :j, :"10", :"9", :"8", :"7", :"6", 
+          :"5", :"4", :"3", :"2"]
+    else
+      [:a, :k, :q, :j]
+    end
+    suits = if type == :full do
+      [:hearts, :spades, :diamonds, :clubs]
+    else
+      [:hearts, :spades, :diamonds, :clubs]
+    end
+    for r <- ranks, s <- suits, do: %Card{ rank: r, suit: s } 
   end
 
   def shuffle(deck) do
@@ -22,7 +31,8 @@ defmodule(Cards) do
 
   def deal_bridge_hands() do
     deck = make_deck |> shuffle
-    deal_bridge_hands(deck, { [[],[],[],[]], 0 })
+    hands = deal_bridge_hands(deck, { [[],[],[],[]], 0 })
+    for h <- hands, do: sort_bridge_hand(h) 
   end
 
   defp deal_bridge_hands([], { hands, _index} ) do
@@ -47,25 +57,18 @@ defmodule(Cards) do
     rank_bridge_card(c1) >= rank_bridge_card(c2)
   end
 
-  def rank_suit({_r,s}) do
-    case s do
-      "Hearts" -> 400
-      "Spades" -> 300
-      "Diamonds" -> 200
-      "Clubs" -> 100
-    end
-  end
+  def rank_suit(%Card{suit: :hearts}), do: 400
+  def rank_suit(%Card{suit: :spades}), do: 300
+  def rank_suit(%Card{suit: :diamonds}), do: 200
+  def rank_suit(%Card{suit: :clubs}), do: 100
 
-  def rank({r, _s}) do
-    case r do
-      "A" -> 14
-      "K" -> 13
-      "Q" -> 12
-      "J" -> 11
-      _ -> 
-        {val, _} = Integer.parse(r)
-        val
-    end
+  def rank(%Card{rank: :a}), do: 14
+  def rank(%Card{rank: :k}), do: 13
+  def rank(%Card{rank: :q}), do: 12
+  def rank(%Card{rank: :j}), do: 11
+  def rank(%Card{rank: r}) do
+    { val, "" } = Integer.parse(to_string(r))
+    val
   end
  
   def rank_bridge_card(card) do
