@@ -21,9 +21,10 @@ defmodule(Cards) do
   end
 
   def deal_bridge_hands() do
-    deck = make_deck |> shuffle
-    hands = deal_bridge_hands(deck, { [[],[],[],[]], 0 })
-    for h <- hands, do: sort_bridge_hand(h) 
+    make_deck
+      |> shuffle
+      |> deal_bridge_hands({ [[],[],[],[]], 0 })
+      |> Enum.map(&sort_bridge_hand/1)
   end
 
   defp deal_bridge_hands([], { hands, _index} ) do
@@ -53,10 +54,22 @@ defmodule(Cards) do
   def rank_suit(%Card{suit: :diamonds}), do: 200
   def rank_suit(%Card{suit: :clubs}), do: 100
 
-  def rank(%Card{rank: :a}), do: 14
-  def rank(%Card{rank: :k}), do: 13
-  def rank(%Card{rank: :q}), do: 12
-  def rank(%Card{rank: :j}), do: 11
+  def rank(%Card{rank: :a}) do
+    14
+  end
+
+  def rank(%Card{rank: :k}) do
+    13
+  end
+
+  def rank(%Card{rank: :q}) do
+    12
+  end
+
+  def rank(%Card{rank: :j}) do
+    11
+  end
+
   def rank(%Card{rank: r}) do
     { val, "" } = Integer.parse(to_string(r))
     val
