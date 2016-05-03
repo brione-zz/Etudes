@@ -22,10 +22,22 @@ defmodule(Card) do
   def suit_to_string(:clubs), do: <<0xe2,0x99,0xa3,0xef,0xb8,0x8f>>
   def suit_to_string(:spades), do: <<0xe2,0x99,0xa0,0xef,0xb8,0x8f>>
 
-  def rank_to_string(:a), do: "A"
-  def rank_to_string(:k), do: "K"
-  def rank_to_string(:q), do: "Q"
-  def rank_to_string(:j), do: "J"
+  def rank_to_string(:a) do
+    "A"
+  end
+
+  def rank_to_string(:k) do
+    "K"
+  end
+
+  def rank_to_string(:q) do
+    "Q"
+  end
+
+  def rank_to_string(:j) do
+    "J"
+  end
+
   def rank_to_string(r) do
     to_string(r)
   end
