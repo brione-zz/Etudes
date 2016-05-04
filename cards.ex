@@ -20,11 +20,15 @@ defmodule(Cards) do
     shuffle(leading ++ t, [h | shuffled]) 
   end
 
-  def deal_bridge_hands() do
+  def sort_deck(deck) do
+    Enum.sort(deck, &Card.compare_cards/2)
+  end
+
+  def deal_bridge_hands do
     make_deck
-      |> shuffle
-      |> deal_bridge_hands({ [[],[],[],[]], 0 })
-      |> Enum.map(&sort_bridge_hand/1)
+    |> shuffle
+    |> deal_bridge_hands({ [[],[],[],[]], 0 })
+    |> Enum.map(&sort_deck/1)
   end
 
   defp deal_bridge_hands([], { hands, _index} ) do
@@ -41,43 +45,6 @@ defmodule(Cards) do
     deal_bridge_hands(deck, { new_hands, new_index })
   end
 
-  def sort_bridge_hand(hand) do
-    Enum.sort(hand, &bridge_sort/2)
-  end
-
-  def bridge_sort(c1, c2) do
-    rank_bridge_card(c1) >= rank_bridge_card(c2)
-  end
-
-  def rank_suit(%Card{suit: :hearts}), do: 400
-  def rank_suit(%Card{suit: :spades}), do: 300
-  def rank_suit(%Card{suit: :diamonds}), do: 200
-  def rank_suit(%Card{suit: :clubs}), do: 100
-
-  def rank(%Card{rank: :a}) do
-    14
-  end
-
-  def rank(%Card{rank: :k}) do
-    13
-  end
-
-  def rank(%Card{rank: :q}) do
-    12
-  end
-
-  def rank(%Card{rank: :j}) do
-    11
-  end
-
-  def rank(%Card{rank: r}) do
-    { val, "" } = Integer.parse(to_string(r))
-    val
-  end
- 
-  def rank_bridge_card(card) do
-    rank_suit(card) + rank(card)
-  end
 
   def empty_hands(num) do
     for _ <- 1..num, do: []

@@ -1,4 +1,11 @@
 defmodule(Card) do
+  @moduledoc """
+  This module is supposed to represent a standard playing card.
+
+  ## Examples
+      iex> card = %Card{ rank: :q, suit: :hearts }
+
+  """
 
   defstruct rank: :none, suit: :none
 
@@ -58,5 +65,38 @@ defmodule(Card) do
     end 
   end
 
+  def compare_cards(c1, c2) do
+    card_value(c1) >= card_value(c2)
+  end
+
+  def suit_value(%Card{suit: :hearts}), do: 400
+  def suit_value(%Card{suit: :spades}), do: 300
+  def suit_value(%Card{suit: :diamonds}), do: 200
+  def suit_value(%Card{suit: :clubs}), do: 100
+
+  def rank_value(%Card{rank: :a}) do
+    14
+  end
+
+  def rank_value(%Card{rank: :k}) do
+    13
+  end
+
+  def rank_value(%Card{rank: :q}) do
+    12
+  end
+
+  def rank_value(%Card{rank: :j}) do
+    11
+  end
+
+  def rank_value(%Card{rank: r}) do
+    { val, "" } = Integer.parse(to_string(r))
+    val
+  end
+ 
+  def card_value(card) do
+    suit_value(card) + rank_value(card)
+  end
   
 end

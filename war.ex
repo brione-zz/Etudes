@@ -1,6 +1,6 @@
 defmodule(War) do
 
-  def start() do
+  def start do
     deck = Cards.shuffle(Cards.make_deck(:full))
     hand_size = length(deck)/2
     { h1, deck } = Cards.deal(deck, trunc(hand_size))
