@@ -3,8 +3,10 @@ defmodule(Card) do
   This module is supposed to represent a standard playing card.
 
   ## Examples
-      iex> card = %Card{ rank: :q, suit: :hearts }
-
+      iex> IO.puts %Card{ rank: :q, suit: :hearts }
+      Q♥️
+      :ok
+  
   """
 
   defstruct rank: :none, suit: :none

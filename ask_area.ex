@@ -22,17 +22,22 @@ defmodule(AskArea) do
   end
 
   def get_number(prompt) do
-    input = String.strip(IO.gets("Enter #{ prompt } > "), ?\n)
+    input = String.strip(IO.gets(prompt), ?\n)
     cond do
-      Regex.match?(~r/\d+.\d+(e[-+]?\d+)?/, input) -> # float
-        :erlang.binary_to_float(input)
-      true-> #integer
+      Regex.match?(~r/^[+-]?\d+$/, input) -> #integer
         :erlang.binary_to_integer(input)
+      Regex.match?(~r/^[+-]?\d+\.\d+([eE][-+]?\d+)?$/, input) -> # float
+        :erlang.binary_to_float(input)
+      true -> :error
     end
   end
 
+  defp get_prompt(p) do
+    "Enter #{p} > "
+  end
+
   def get_dimensions(p1, p2) do
-    { get_number(p1), get_number(p2) }
+    { p1 |> get_prompt |> get_number, p2 |> get_prompt |> get_number }
   end
 
   def calculate(shape, d1, d2) do
