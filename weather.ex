@@ -60,6 +60,11 @@ defmodule Weather do
     {:noreply, state}
   end
 
+  @doc """
+  This code came nearly straight from Elixir Etudes, but for some reason he
+  call atom_to_string on the element name in the xml closing pattern and it
+  both caused problems and is not needed.
+  """
   def get_content(element_name, xml) do
     {_, pattern} = Regex.compile(
       "<#{element_name}>([^<]+)</#{element_name}>")
@@ -69,4 +74,19 @@ defmodule Weather do
       nil -> {element_name, nil}
     end
   end 
+end
+
+defmodule WeatherSup do
+  use Supervisor
+
+  def start_link do
+    Supervisor.start_link(__MODULE__, :ok)
+  end
+
+  def init(:ok) do
+    children = [
+      worker(Weather, [])
+    ]
+    supervise(children, strategy: :one_for_one)
+  end
 end
