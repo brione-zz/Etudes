@@ -56,6 +56,7 @@ defmodule Weather do
     case status do
       {_, 200, _} -> 
         xml = List.to_string(data)
+        # :xmerl_sax_parser.stream(data, [{:event_fun, &Parser.parse_event/3}])
         {:reply, [get_content("location", xml), 
             get_content("weather", xml),
             get_content("observation_time_rfc822", xml), 
@@ -103,9 +104,27 @@ defmodule WeatherSup do
     ]
     supervise(children, strategy: :one_for_one)
   end
+
 end
 
 defmodule Parser do
 
-
+  def parse_event(event, location, state) do
+    case event do
+      :startDocument -> 
+        IO.puts("Got start document")
+        state
+      :endDocument ->
+        IO.puts("Got end document")
+        state
+      {:startElement, uri, name, qname, atts} ->
+        IO.puts("Got startElement #{name} at #{qname}")
+        state 
+      {:endElement, uri, name, qname} ->
+        IO.puts("Got endElement #{name} at #{qname}")
+        state 
+      _ ->
+        state
+    end
+  end
 end
