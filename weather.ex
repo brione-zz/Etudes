@@ -11,21 +11,28 @@ defmodule Weather do
   Start the client
   """
   def start_link do
-    GenServer.start_link(__MODULE__, :ok, [{:name, __MODULE__}])
+    GenServer.start_link(__MODULE__, :ok, [{:name, {:global, MODULE}}])
   end
 
   @doc """
   Return the weather report for the station specified or an error tuple
   """
   def report(station) do
-    GenServer.call(Weather, {:report, station})
+    GenServer.call({:global, MODULE}, {:report, station})
   end
 
   @doc """
   Have the server print out a list of recent successful stations we've accessed
   """
   def recent do
-    GenServer.cast(Weather, :recent)
+    GenServer.call({:global, MODULE}, :recent)
+  end
+
+  @doc """
+  Try to connect to the named node
+  """
+  def connect(node) when is_atom(node) do
+    Node.connect(node)    
   end
 
   ## Server API
@@ -63,12 +70,10 @@ defmodule Weather do
   end
 
   @doc """
-  Handle cast calls. This will result in printing the latest stations
-  to the standard output.
+  Handle the recent list call. This will result in returning the recent list.
   """
-  def handle_cast(:recent, state) do
-    IO.inspect(state)
-    {:noreply, state}
+  def handle_call(:recent, _from, state) do
+    {:reply, state, state}
   end
 end
 
