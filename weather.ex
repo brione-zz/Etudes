@@ -14,6 +14,20 @@ defmodule Weather do
     GenServer.start_link(__MODULE__, :ok, [{:name, __MODULE__}])
   end
 
+  @doc """
+  Return the weather report for the station specified or an error tuple
+  """
+  def report(station) do
+    GenServer.call(Weather, {:report, station})
+  end
+
+  @doc """
+  Have the server print out a list of recent successful stations we've accessed
+  """
+  def recent do
+    GenServer.cast(Weather, :recent)
+  end
+
   ## Server API
 
   @doc """
@@ -34,7 +48,7 @@ defmodule Weather do
   Handle calls to the server. Receive the station, fetch the data and present
   it.
   """
-  def handle_call(station, _from, state) do
+  def handle_call({:report, station}, _from, state) do
     url = 'http://w1.weather.gov/xml/current_obs/#{station}.xml'
     user_agent = {'User-Agent', 'Elixir(brione2001@gmail.com)'}
     request = {url, [user_agent]}
@@ -55,7 +69,7 @@ defmodule Weather do
   Handle cast calls. This will result in printing the latest stations
   to the standard output.
   """
-  def handle_cast(_, state) do
+  def handle_cast(:recent, state) do
     IO.inspect(state)
     {:noreply, state}
   end
