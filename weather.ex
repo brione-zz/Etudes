@@ -70,30 +70,25 @@ defmodule Weather do
     IO.inspect(state)
     {:noreply, state}
   end
-
-  @doc """
-  This code came nearly straight from Elixir Etudes, but for some reason he
-  call atom_to_string on the element name in the xml closing pattern and it
-  both caused problems and is not needed.
-  """
-  def get_content(element_name, xml) do
-    {_, pattern} = Regex.compile(
-      "<#{element_name}>([^<]+)</#{element_name}>")
-    result = Regex.run(pattern, xml)
-    case result do
-      [_all, match] -> {element_name, match}
-      nil -> {element_name, nil}
-    end
-  end 
 end
 
 defmodule WeatherSup do
   use Supervisor
+  @moduledoc """
+  A supervisor for the Weather GenServer. Lacks shutting down the Weather
+  server, which is a problem.
+  """
 
+  @doc """
+  Start the supervisor
+  """
   def start_link do
     Supervisor.start_link(__MODULE__, :ok)
   end
 
+  @doc """
+  Initialize the supervisor by starting its children
+  """
   def init(:ok) do
     children = [
       worker(Weather, [])
@@ -104,7 +99,14 @@ defmodule WeatherSup do
 end
 
 defmodule Parser do
+  @moduledoc """
+  Use the xmerl_sax_parser to parse the data from the xml.
+  """
 
+  @doc """
+  This is the event callback function that we passed to the
+  :xmerl_sax_parser.stream method.
+  """
   def parse_event(event, _location, tuple = {state, result}) do
     case event do
       {:startElement, _uri, name, _qname, _atts} ->
