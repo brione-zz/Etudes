@@ -91,7 +91,7 @@ defmodule WeatherSup do
   """
   def init(:ok) do
     children = [
-      worker(Weather, [])
+      worker(Weather, [], restart: :transient)
     ]
     supervise(children, strategy: :one_for_one)
   end
