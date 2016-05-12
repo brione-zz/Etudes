@@ -56,12 +56,8 @@ defmodule Weather do
     case status do
       {_, 200, _} -> 
         xml = List.to_string(data)
-        # :xmerl_sax_parser.stream(data, [{:event_fun, &Parser.parse_event/3}])
-        {:reply, [get_content("location", xml), 
-            get_content("weather", xml),
-            get_content("observation_time_rfc822", xml), 
-            get_content("temperature_string", xml)],  
-            [station|state]}
+        result = :xmerl_sax_parser.stream(data, [{:event_fun, &Parser.parse_event/3}, {:event_state, {[],[]}}])
+        {:reply, result, [station|state]}
       {_,code, _} -> {:reply, {:error, code}, state}
     end
   end
@@ -109,22 +105,34 @@ end
 
 defmodule Parser do
 
-  def parse_event(event, location, state) do
+  def parse_event(event, _location, tuple = {state, result}) do
     case event do
-      :startDocument -> 
-        IO.puts("Got start document")
-        state
-      :endDocument ->
-        IO.puts("Got end document")
-        state
-      {:startElement, uri, name, qname, atts} ->
-        IO.puts("Got startElement #{name} at #{qname}")
-        state 
-      {:endElement, uri, name, qname} ->
-        IO.puts("Got endElement #{name} at #{qname}")
-        state 
+      {:startElement, _uri, name, _qname, _atts} ->
+        cond do
+          name == 'location' or name == 'observation_time_rfc822' or
+              name == 'weather' or name == 'temperature_string' ->
+              {name, result}             
+          true ->
+            tuple
+        end
+      {:endElement, _uri, name, _qname} ->
+        cond do
+          name == 'location' or name == 'observation_time_rfc822' or
+              name == 'weather' or name == 'temperature_string' ->
+            {nil, result}
+          true ->
+            tuple
+        end
+      {:characters, char_list} ->
+        cond do
+          state == 'location' or state == 'observation_time_rfc822' or
+              state == 'weather' or state == 'temperature_string' -> 
+            {state, [{state, List.to_string(char_list)}|result]}
+          true ->
+            tuple
+        end        
       _ ->
-        state
+        tuple
     end
   end
 end
