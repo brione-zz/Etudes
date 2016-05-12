@@ -104,3 +104,8 @@ defmodule WeatherSup do
     supervise(children, strategy: :one_for_one)
   end
 end
+
+defmodule Parser do
+
+
+end
