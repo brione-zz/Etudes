@@ -15,6 +15,13 @@ defmodule Weather do
   end
 
   @doc """
+  Stop the server
+  """
+  def done() do
+    GenServer.stop({:global, MODULE})
+  end
+
+  @doc """
   Return the weather report for the station specified or an error tuple
   """
   def report(station) do
