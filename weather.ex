@@ -99,6 +99,14 @@ defmodule WeatherSup do
   end
 
   @doc """
+  Stop the supervisor and its child
+  """
+  def done do
+    Weather.done
+    Supervisor.stop(__MODULE__)
+  end
+
+  @doc """
   Initialize the supervisor by starting its children
   """
   def init(:ok) do
