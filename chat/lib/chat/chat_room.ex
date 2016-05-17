@@ -5,14 +5,14 @@ defmodule ChatRoom do
   Start the chat room server, with initial state of an empty list of clients
   """
   def start_link() do
-    {:ok, _pid} = GenServer.start_link(__MODULE__, [], [])
+    GenServer.start_link(__MODULE__, [], [{:name, {:global, Room}}])
   end
 
   @doc """
   Initialize the server
   """
-  def init(users_list) do
-    {:ok, users_list}    
+  def init(user_list) do
+    {:ok, user_list}    
   end
 
   @doc """
@@ -54,9 +54,9 @@ defmodule ChatRoom do
   process id as the first argument to GenServer.cast/2.
   """
   def handle_call({:say, text}, {pid, _refnum}, user_list) do
-    {sender, pid} = List.keyfind(user_list, pid, 1)
+    sender = List.keyfind(user_list, pid, 1)
     Enum.each(user_list, fn({_user, pid}) -> 
-        GenServer.cast(pid, {:say, sender, text}) end)
+        GenServer.cast(pid, {:message, sender, text}) end)
     {:reply, :ok, user_list}
   end
 

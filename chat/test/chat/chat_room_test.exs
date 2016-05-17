@@ -1,9 +1,12 @@
 defmodule ChatRoomTest do
-  use ExUnit.Case, async: true
+  use ExUnit.Case
 
   setup do
     {:ok, chatroom} = ChatRoom.start_link
-    {:ok, chatroom: chatroom}
+    on_exit fn ->
+      GenServer.stop(chatroom)
+    end
+    {:ok, %{chatroom: chatroom}}
   end
 
   test "login a user", %{chatroom: chatroom} do
