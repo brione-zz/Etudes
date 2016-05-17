@@ -48,10 +48,6 @@ defmodule ChatRoom do
     end
   end
 
-  defp find_user_by_pid(user_list, pid) do
-    List.keyfind(user_list, pid, 1)
-  end
-
   @doc """
   Sends the given text to all the other users in the chat room. Use 
   GenServer.cast/2 to send the message to each user. You may use a 
@@ -78,9 +74,14 @@ defmodule ChatRoom do
   the pid of person at node server_name and sending it a :get_profile
   request.
   """
-  def handle_call({:profile, person, server_name}, from, state) do
-
-
+  def handle_call({:profile, person, server}, {pid, _refnum}, user_list) do
+    case List.keyfind(user_list, {person, server}, 0) do
+      nil -> 
+        :error_logger.info_msg("User #{person}@#{server} not found\n")
+        {:reply, :error, user_list}
+      {user, user_pid} ->
+        {:reply, GenServer.call(user_pid, :profile), user_list}
+    end
   end
 
 end
