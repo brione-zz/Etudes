@@ -1,5 +1,5 @@
 defmodule Integration do
-  use ExUnit.Case, async: true
+  use ExUnit.Case, async: false
 
   setup do
     {:ok, room} = ChatRoom.start_link
