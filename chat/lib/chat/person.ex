@@ -79,12 +79,8 @@ defmodule Person do
   Perform local initialization
   """
   def init([server_node]) do
-    new_node = case Kernel.node do
-      :nonode@nohost -> :localhost
-      _ -> Kernel.node
-    end
     {:ok, %{server: {ChatRoom, server_node}, 
-        node: new_node, user_profile: Map.new}}
+        node: Kernel.node, user_profile: Map.new}}
   end
 
   @doc """
@@ -94,7 +90,7 @@ defmodule Person do
   """
   def handle_call(:get_chat_node, _from, state) do
     IO.puts "Sending #{inspect state.server}"
-    {:reply, state.server, state}
+    {:reply, state.node, state}
   end
 
   @doc """
