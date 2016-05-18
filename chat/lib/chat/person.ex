@@ -15,7 +15,7 @@ defmodule Person do
   GenServer.call(Person, :get_chat_node)
   """
   def get_chat_node() do
-    GenServer.call(__MODULE__, :get_chat_node)    
+    GenServer.call(__MODULE__, :get_chat_node)
   end
 
   @doc """
@@ -83,7 +83,7 @@ defmodule Person do
       :nonode@nohost -> :localhost
       _ -> Kernel.node
     end
-    {:ok, %{server: {:ChatRoom, server_node}, 
+    {:ok, %{server: {ChatRoom, server_node}, 
         node: new_node, user_profile: Map.new}}
   end
 
