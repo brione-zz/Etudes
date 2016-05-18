@@ -7,7 +7,7 @@ defmodule Person do
   Start a client-side GenServer
   """
   def start_link(server_node) do
-    GenServer.start_link(__MODULE__, server_node, name: Chat)
+    GenServer.start_link(__MODULE__, [server_node], [{:name, __MODULE__}])
   end
 
   @doc """
@@ -15,7 +15,7 @@ defmodule Person do
   GenServer.call(Person, :get_chat_node)
   """
   def get_chat_node() do
-    GenServer.call(Chat, :get_chat_node)    
+    GenServer.call(__MODULE__, :get_chat_node)
   end
 
   @doc """
@@ -24,7 +24,7 @@ defmodule Person do
   to a string.
   """
   def login(user_name) do
-    GenServer.call(Chat, {:login, user_name})
+    GenServer.call(__MODULE__, {:login, user_name})
   end
 
   @doc """
@@ -33,21 +33,21 @@ defmodule Person do
   out who should be logged out.
   """
   def logout() do
-    GenServer.call(Chat, :logout)
+    GenServer.call(__MODULE__, :logout)
   end
 
   @doc """
   Calls the Person server with a {:say, text} request.
   """
   def say(text) do
-    GenServer.call(Chat, {:say, text})
+    GenServer.call(__MODULE__, {:say, text})
   end
 
   @doc """
   Calls the chat server with a :users request.
   """
   def users() do
-    GenServer.call(Room, :users)
+    GenServer.call(__MODULE__, :users)
   end
 
   @doc """
@@ -55,7 +55,7 @@ defmodule Person do
   the profile of the given person. (extra credit)
   """
   def who(user_name, user_node) do
-    GenServer.call(Room, {:profile, user_name, user_node})
+    GenServer.call(__MODULE__, {:profile, user_name, user_node})
   end
 
   @doc """
@@ -63,14 +63,14 @@ defmodule Person do
   {:set_profile, key, value} request. (extra credit)
   """
   def set_profile(key, value) do
-    GenServer.cast(Chat, {:set_profile, key, value})
+    GenServer.cast(__MODULE__, {:set_profile, key, value})
   end
 
   @doc """
   A convenience method to get the local profile.
   """
   def get_profile() do
-    GenServer.call(Chat, :get_profile)
+    GenServer.call(__MODULE__, :get_profile)
   end
 
   ## Server side API
@@ -78,8 +78,13 @@ defmodule Person do
   @doc """
   Perform local initialization
   """
-  def init(server_node) do
-    {:ok, %{server: server_node, user_profile: %{}}}
+  def init([server_node]) do
+    new_node = case Kernel.node do
+      :nonode@nohost -> :localhost
+      _ -> Kernel.node
+    end
+    {:ok, %{server: {ChatRoom, server_node}, 
+        node: new_node, user_profile: Map.new}}
   end
 
   @doc """
@@ -88,8 +93,8 @@ defmodule Person do
   section will need the chat node name.)
   """
   def handle_call(:get_chat_node, _from, state) do
-    IO.puts "Sending #{state[:server]}"
-    {:reply, state[:server], state}
+    IO.puts "Sending #{inspect state.server}"
+    {:reply, state.server, state}
   end
 
   @doc """
@@ -97,21 +102,22 @@ defmodule Person do
   server node name.
   """
   def handle_call({:login, user_name}, _from, state) do
-    {:reply, GenServer.call(Room, {:login, user_name, state[:server]}), state}
+    {:reply, GenServer.call(state.server, {:login, user_name, state.node}),
+        state}
   end
 
   @doc """
   Forward this request to the chat room server.
   """
   def handle_call(:logout, _from, state) do
-    {:reply, GenServer.call(Room, :logout), state}
+    {:reply, GenServer.call(state.server, :logout), state}
   end
 
   @doc """
   Forward this request to the chat room server.
   """
   def handle_call({:say, text}, _from, state) do
-    {:reply, GenServer.call(Room, {:say, text})}
+    {:reply, GenServer.call(state.server, {:say, text}), state}
   end
 
   @doc """
@@ -119,6 +125,20 @@ defmodule Person do
   """
   def handle_call(:get_profile, _from, state) do
     {:reply, state[:user_profile], state}
+  end
+
+  @doc """
+  Refer the :users command to the chat server
+  """
+  def handle_call(:users, _from, state) do
+    {:reply, GenServer.call(state.server, :users), state}
+  end 
+
+  @doc """
+  Refer the :profile request to the chat server
+  """
+  def handle_call({:profile, user, server}, _from, state) do
+    {:reply, GenServer.call(state.server, {:profile, user, server}), state}
   end
 
   @doc """
