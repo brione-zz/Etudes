@@ -3,9 +3,6 @@ defmodule ChatRoomTest do
 
   setup do
     {:ok, chatroom} = ChatRoom.start_link
-    on_exit fn ->
-      GenServer.stop(chatroom)
-    end
     {:ok, %{chatroom: chatroom}}
   end
 

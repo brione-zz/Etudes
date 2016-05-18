@@ -5,7 +5,7 @@ defmodule ChatRoom do
   Start the chat room server, with initial state of an empty list of clients
   """
   def start_link() do
-    GenServer.start_link(__MODULE__, [], [{:name, {:global, Room}}])
+    GenServer.start_link(__MODULE__, [], [{:name, __MODULE__}])
   end
 
   @doc """

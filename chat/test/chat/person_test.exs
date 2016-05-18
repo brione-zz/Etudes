@@ -2,13 +2,13 @@ defmodule PersonTest do
   use ExUnit.Case, async: true
 
   setup do
-    this_node = node()
+    this_node = :localhost
     {:ok, _client} = Person.start_link(this_node)
     {:ok, %{node: this_node}}
   end
 
   test "test the client node function", context do
-    assert context[:node] == Person.get_chat_node()
+    assert context.node == Person.get_chat_node()
   end
 
   test "get empty user profile" do
