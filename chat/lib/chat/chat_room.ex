@@ -27,7 +27,7 @@ defmodule ChatRoom do
       {:reply, :ok, [{user, pid}|user_list]}
     else
       :error_logger.info_msg(
-        "Duplicate user/server combination: #{user_name}/#{user_server}\n")
+        "Duplicate user/server combination: #{user_name}@#{user_server}\n")
       {:reply, :error, user_list}
     end
   end
@@ -41,9 +41,9 @@ defmodule ChatRoom do
         :error_logger.info_msg( 
             "No user with pid: #{pid} found\n")
         {:reply, :error, user_list}
-      {{{user_name, user_server}, pid}, new_user_list} ->
+      {{{user_name, user_server}, _pid}, new_user_list} ->
         :error_logger.info_msg(
-            "User #{user_name} logged out of chat room\n")
+            "User #{user_name}@#{user_server} logged out of chat room\n")
         {:reply, :ok, new_user_list}
     end
   end
@@ -64,7 +64,7 @@ defmodule ChatRoom do
   Returns the list of names and servers for all people currently in 
   the chat room.
   """
-  def handle_call(:users, from, user_list) do
+  def handle_call(:users, _from, user_list) do
     {:reply, Enum.map(user_list, fn({user, _pid}) -> user end), user_list}
   end
 
@@ -74,12 +74,12 @@ defmodule ChatRoom do
   the pid of person at node server_name and sending it a :get_profile
   request.
   """
-  def handle_call({:profile, person, server}, {pid, _refnum}, user_list) do
+  def handle_call({:profile, person, server}, _from, user_list) do
     case List.keyfind(user_list, {person, server}, 0) do
       nil -> 
         :error_logger.info_msg("User #{person}@#{server} not found\n")
         {:reply, :error, user_list}
-      {user, user_pid} ->
+      {_user, user_pid} ->
         {:reply, GenServer.call(user_pid, :profile), user_list}
     end
   end

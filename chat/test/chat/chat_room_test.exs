@@ -1,5 +1,5 @@
 defmodule ChatRoomTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   setup do
     {:ok, chatroom} = ChatRoom.start_link
