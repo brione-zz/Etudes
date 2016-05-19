@@ -157,7 +157,7 @@ defmodule Person do
   {:message, {from_user, from_server}, text}
   """
   def handle_cast({:message, {from_user, from_server}, text}, state) do
-    IO.puts("Message #{from_user}@#{from_server}: #{text}")
+    IO.puts("Message #{inspect from_user}@#{inspect from_server}: #{text}")
     {:noreply, state}
   end
 end

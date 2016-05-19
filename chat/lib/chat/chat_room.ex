@@ -54,8 +54,8 @@ defmodule ChatRoom do
   process id as the first argument to GenServer.cast/2.
   """
   def handle_call({:say, text}, {pid, _refnum}, user_list) do
-    sender = List.keyfind(user_list, pid, 1)
-    Enum.each(user_list, fn({_user, pid}) -> 
+    {sender, _}  = List.keyfind(user_list, pid, 1)
+    Enum.each(user_list, fn({_user, pid}) ->
         GenServer.cast(pid, {:message, sender, text}) end)
     {:reply, :ok, user_list}
   end
