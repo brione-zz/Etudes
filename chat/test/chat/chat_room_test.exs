@@ -2,8 +2,10 @@ defmodule ChatRoomTest do
   use ExUnit.Case, async: false
 
   setup _context do
-    {:ok, chatroom} = ChatRoom.start_link
-    {:ok, %{chatroom: chatroom}}
+    on_exit fn ->
+      ChatRoom.reset
+    end
+    {:ok, %{chatroom: {ChatRoom, Kernel.node}}}
   end
 
   test "login a user", %{chatroom: chatroom} do

@@ -2,15 +2,16 @@ defmodule Integration do
   use ExUnit.Case, async: false
 
   setup do
-    {:ok, room} = ChatRoom.start_link
     {:ok, client} = Person.start_link(Kernel.node())
-    {:ok, %{node: Kernel.node(), room: room, client: client}}
+    on_exit fn ->
+      ChatRoom.reset
+    end
+    {:ok, %{node: Kernel.node(), client: client}}
   end
 
   @tag :distributed
   test "preconditions", context do
     assert context[:node]
-    assert context[:room]
     assert context[:client]  
   end
 

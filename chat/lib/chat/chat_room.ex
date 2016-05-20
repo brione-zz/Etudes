@@ -16,6 +16,20 @@ defmodule ChatRoom do
   end
 
   @doc """
+  Reset the server (clear the user list. used to reset the server for tests)
+  """
+  def reset() do
+    GenServer.call(__MODULE__, :reset)
+  end
+
+  @doc """
+  Reset the server synchronously
+  """
+  def handle_call(:reset, _from, _state) do
+    {:reply, :ok, []}
+  end
+
+  @doc """
   Adds the user name, server name, and pid (which is in the from parameter)
   to the server’s state. Don’t allow a duplicate user name from the same 
   server. You can use List.keymember?/3 for this. The tuple looks like this:
