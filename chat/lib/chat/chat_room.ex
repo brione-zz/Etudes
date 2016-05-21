@@ -37,11 +37,16 @@ defmodule ChatRoom do
   """
   def handle_call({:login, user_name, user_server}, 
       {pid, _refnum}, user_list) do
-    if !List.keymember?(user_list, user = {user_name, user_server}, 0) do
+    name_string = if is_atom(user_name) do
+      to_string(user_name)
+    else
+      user_name
+    end
+    if !List.keymember?(user_list, user = {name_string, user_server}, 0) do
       {:reply, :ok, [{user, pid}|user_list]}
     else
       :error_logger.info_msg(
-        "Duplicate user/server combination: #{user_name}@#{user_server}\n")
+        "Duplicate user/server combination: #{name_string}@#{user_server}\n")
       {:reply, :error, user_list}
     end
   end

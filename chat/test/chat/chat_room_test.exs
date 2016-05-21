@@ -8,13 +8,20 @@ defmodule ChatRoomTest do
     {:ok, %{chatroom: {ChatRoom, Kernel.node}}}
   end
 
-  test "login a user", %{chatroom: chatroom} do
+  test "login and logout users", %{chatroom: chatroom} do
     assert :ok = GenServer.call(chatroom, {:login, "brion", :server1})
     assert :error = GenServer.call(chatroom, {:login, "brion", :server1})
+    # hmm assert :ok = GenServer.call(chatroom, :logout)
     assert :ok = GenServer.call(chatroom, {:login, "martin", :server1})
     assert :ok = GenServer.call(chatroom, {:login, "martin", :server2})
     assert :ok = GenServer.call(chatroom, {:login, "cardiff", :server2})
     assert :error = GenServer.call(chatroom, {:login, "cardiff", :server2})
+    assert 4 == length GenServer.call(chatroom, :users)
+  end
+
+  test "login a user with atom as name", %{chatroom: chatroom} do
+    assert :ok = GenServer.call(chatroom, {:login, :fred, :server2})
+    assert 1 == length GenServer.call(chatroom, :users)
   end
 
   test "logout a user", %{chatroom: chatroom} do
