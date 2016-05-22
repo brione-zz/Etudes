@@ -7,15 +7,15 @@ defmodule Person do
   Start a client-side GenServer
   """
   def start_link(server_node) do
-    GenServer.start_link(__MODULE__, [server_node], [{:name, __MODULE__}])
+    GenServer.start_link(__MODULE__, [server_node], [])
   end
 
   @doc """
   A convenience function to get the name of the chat host node by doing 
   GenServer.call(Person, :get_chat_node)
   """
-  def get_chat_node() do
-    GenServer.call(__MODULE__, :get_chat_node)
+  def get_chat_node(pid) do
+    GenServer.call(pid, :get_chat_node)
   end
 
   @doc """
@@ -23,8 +23,8 @@ defmodule Person do
   If the user name is an atom, use atom_to_binary/1 to convert it 
   to a string.
   """
-  def login(user_name) do
-    GenServer.call(__MODULE__, {:login, user_name})
+  def login(pid, user_name) do
+    GenServer.call(pid, {:login, user_name})
   end
 
   @doc """
@@ -32,45 +32,45 @@ defmodule Person do
   description of chatroom, the server uses the process ID to figure 
   out who should be logged out.
   """
-  def logout() do
-    GenServer.call(__MODULE__, :logout)
+  def logout(pid) do
+    GenServer.call(pid, :logout)
   end
 
   @doc """
   Calls the Person server with a {:say, text} request.
   """
-  def say(text) do
-    GenServer.call(__MODULE__, {:say, text})
+  def say(pid, text) do
+    GenServer.call(pid, {:say, text})
   end
 
   @doc """
   Calls the chat server with a :users request.
   """
-  def users() do
-    GenServer.call(__MODULE__, :users)
+  def users(pid) do
+    GenServer.call(pid, :users)
   end
 
   @doc """
   Calls the chat server with a {:who, user_name, user_node} request to see 
   the profile of the given person. (extra credit)
   """
-  def who(user_name, user_node) do
-    GenServer.call(__MODULE__, {:profile, user_name, user_node})
+  def who(pid, user_name, user_node) do
+    GenServer.call(pid, {:profile, user_name, user_node})
   end
 
   @doc """
   A convenience method that calls the Person server with a 
   {:set_profile, key, value} request. (extra credit)
   """
-  def set_profile(key, value) do
-    GenServer.cast(__MODULE__, {:set_profile, key, value})
+  def set_profile(pid, key, value) do
+    GenServer.cast(pid, {:set_profile, key, value})
   end
 
   @doc """
   A convenience method to get the local profile.
   """
-  def get_profile() do
-    GenServer.call(__MODULE__, :get_profile)
+  def get_profile(pid) do
+    GenServer.call(pid, :get_profile)
   end
 
   ## Server side API
@@ -79,12 +79,8 @@ defmodule Person do
   Perform local initialization
   """
   def init([server_node]) do
-    new_node = case Kernel.node do
-      :nonode@nohost -> :localhost
-      _ -> Kernel.node
-    end
     {:ok, %{server: {ChatRoom, server_node}, 
-        node: new_node, user_profile: Map.new}}
+        node: Kernel.node, user_profile: Map.new}}
   end
 
   @doc """
@@ -93,8 +89,7 @@ defmodule Person do
   section will need the chat node name.)
   """
   def handle_call(:get_chat_node, _from, state) do
-    IO.puts "Sending #{inspect state.server}"
-    {:reply, state.server, state}
+    {:reply, state.node, state}
   end
 
   @doc """
@@ -135,10 +130,18 @@ defmodule Person do
   end 
 
   @doc """
-  Refer the :profile request to the chat server
+  Pass the general :profile message on to the server. If it is our user,
+  we'll have to handle the local profile message too.
   """
   def handle_call({:profile, user, server}, _from, state) do
     {:reply, GenServer.call(state.server, {:profile, user, server}), state}
+  end
+
+  @doc """
+  Handle the local profile message.
+  """
+  def handle_call(:profile, _from, state) do
+    {:reply, state.user_profile, state}
   end
 
   @doc """
@@ -162,7 +165,7 @@ defmodule Person do
   {:message, {from_user, from_server}, text}
   """
   def handle_cast({:message, {from_user, from_server}, text}, state) do
-    IO.puts("Message #{from_user}@#{from_server}: #{text}")
+    IO.puts("Message #{inspect from_user}@#{inspect from_server}: #{text}")
     {:noreply, state}
   end
 end
