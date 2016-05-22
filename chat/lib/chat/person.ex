@@ -130,10 +130,18 @@ defmodule Person do
   end 
 
   @doc """
-  Refer the :profile request to the chat server
+  Pass the general :profile message on to the server. If it is our user,
+  we'll have to handle the local profile message too.
   """
   def handle_call({:profile, user, server}, _from, state) do
     {:reply, GenServer.call(state.server, {:profile, user, server}), state}
+  end
+
+  @doc """
+  Handle the local profile message.
+  """
+  def handle_call(:profile, _from, state) do
+    {:reply, state.user_profile, state}
   end
 
   @doc """

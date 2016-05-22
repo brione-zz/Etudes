@@ -1,5 +1,6 @@
 defmodule ChatRoom do
   use GenServer
+  require Logger
 
   @doc """
   Start the chat room server, with initial state of an empty list of clients
@@ -45,8 +46,8 @@ defmodule ChatRoom do
     if !List.keymember?(user_list, user = {name_string, user_server}, 0) do
       {:reply, :ok, [{user, pid}|user_list]}
     else
-      :error_logger.info_msg(
-        "Duplicate user/server combination: #{name_string}@#{user_server}\n")
+      Logger.info(
+        "Duplicate user/server combination: #{name_string}@#{user_server}")
       {:reply, :error, user_list}
     end
   end
@@ -57,12 +58,12 @@ defmodule ChatRoom do
   def handle_call(:logout, {pid, _refnum}, user_list) do
     case List.keytake(user_list, pid, 1) do
       nil ->
-        :error_logger.info_msg( 
-            "No user with pid: #{pid} found\n")
+        Logger.info( 
+            "No user with pid: #{pid} found")
         {:reply, :error, user_list}
       {{{user_name, user_server}, _pid}, new_user_list} ->
-        :error_logger.info_msg(
-            "User #{user_name}@#{user_server} logged out of chat room\n")
+        Logger.info(
+            "User #{user_name}@#{user_server} logged out of chat room")
         {:reply, :ok, new_user_list}
     end
   end
@@ -96,7 +97,7 @@ defmodule ChatRoom do
   def handle_call({:profile, person, server}, _from, user_list) do
     case List.keyfind(user_list, {person, server}, 0) do
       nil -> 
-        :error_logger.info_msg("User #{person}@#{server} not found\n")
+        Logger.info("User #{person}@#{server} not found")
         {:reply, :error, user_list}
       {_user, user_pid} ->
         {:reply, GenServer.call(user_pid, :profile), user_list}
